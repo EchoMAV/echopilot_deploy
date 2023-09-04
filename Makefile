@@ -75,7 +75,7 @@ install:
 	@for c in stop disable ; do $(SUDO) systemctl $${c} $(SERVICES) ; done ; true
 
 # install cockpit
-	@./ensure-cockpit.sh
+	@$(SUDO) ./ensure-cockpit.sh
 
 # install and enable services
 	@for s in $(SERVICES) ; do $(SUDO) install -Dm644 $${s%.*}.service $(LIBSYSTEMD)/$${s%.*}.service ; done
