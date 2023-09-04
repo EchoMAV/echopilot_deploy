@@ -1,0 +1,11 @@
+{
+    "version": 0,
+
+    "menu": {
+        "general": {
+            "label": "MAVLink Telemtry",
+            "path": "general.html",
+            "order": 1
+        }
+    }
+}
