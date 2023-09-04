@@ -15,11 +15,8 @@ LOCAL_SCRIPTS=temperature.sh cockpitScript.sh
 .PHONY = enable install see uninstall static default
 
 default: 
-	# @$(MAKE) --no-print-directory install 
-	@$(MAKE) --no-print-directory static
-	
-	@echo "Installation complete, configure the system using the web UI at https://$(shell ifconfig eth0 | grep 'inet' | head -n 1 | cut -d : -f2 | awk '{print $2}')"
-
+	@$(MAKE) --no-print-directory install 
+	@$(MAKE) --no-print-directory static	
 disable:
 	@( for c in stop disable ; do $(SUDO) systemctl $${c} $(SERVICES) ; done ; true )
 
