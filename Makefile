@@ -12,11 +12,15 @@ DRY_RUN=false
 LOCAL=/usr/local
 LOCAL_SCRIPTS=temperature.sh cockpitScript.sh
 
-.PHONY = enable install see uninstall static default
+.PHONY = enable install see uninstall static default no-static
 
 default: 
 	@$(MAKE) --no-print-directory install 
 	@$(MAKE) --no-print-directory static	
+
+no-static:
+	@$(MAKE) --no-print-directory install
+
 disable:
 	@( for c in stop disable ; do $(SUDO) systemctl $${c} $(SERVICES) ; done ; true )
 
