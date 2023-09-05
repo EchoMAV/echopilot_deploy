@@ -6,6 +6,7 @@ A makefile is included which will install mavlink-router, cockpit and set the de
 - mavlink-router is an open source tool to route mavlink messages across various types of endpoints. On the EchoPilot AI, it is used to accept serial data from the autopilot and act as a client or server using either UDP or TCP for packets.
 - cockpit is web-based graphical user interface, allowing you to manage the system. As configured in this install, a MAVLink-Router configuration page allows you to use a simple to use web user interface to configure mavlink-router. Simply access the system using a web browser at http://IP_ADDRESS.
 - A shell script is included which will configure a unique static IP address for the system based on the network adapter's MAC address.
+- Other helpful applications are installed, including nano, htop and nload.
 
 ## Steps to install
 
