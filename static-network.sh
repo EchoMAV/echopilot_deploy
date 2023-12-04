@@ -82,6 +82,7 @@ elif [ $IP_INPUT = "dhcp" ]; then
   #if static-iface exists, then mod to dhcp
   exist=$(nmcli c show "static-$IFACE" 2>/dev/null)  
   if [ ! -z "$exist" ] ; then     # delete the interface if it exists
+        $SUDO nmcli con mod "static-$IFACE" ipv4.address ""
         $SUDO nmcli con mod "static-$IFACE" ipv4.method auto
         $SUDO nmcli con down "static-$IFACE"
         $SUDO nmcli con up "static-$IFACE"
