@@ -40,7 +40,7 @@ static:
 
 install: 	
 # install helper apps
-	@$(SUDO) rm -r /var/lib/apt/lists/*
+	# @$(SUDO) rm -r /var/lib/apt/lists/*
 	@$(SUDO) apt update
 	@$(SUDO) apt install -y nano
 	@$(SUDO) apt install -y nload
