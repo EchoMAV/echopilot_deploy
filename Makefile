@@ -18,6 +18,10 @@ default:
 	@$(MAKE) --no-print-directory install 
 	@$(MAKE) --no-print-directory static	
 
+explicit-ip:
+	@$(MAKE) --no-print-directory install
+	@$(SUDO) ./static-network.sh -i eth0 -a $(ip)
+
 no-static:
 	@$(MAKE) --no-print-directory install
 
