@@ -11,12 +11,13 @@ SERVICES=mavlink-router.service temperature.service
 DRY_RUN=false
 LOCAL=/usr/local
 LOCAL_SCRIPTS=temperature.sh cockpitScript.sh
+SW_LOCATION=sw_driver
 
-.PHONY = enable install see uninstall static default no-static
+.PHONY = enable install see uninstall static default no-static cellular
 
 default: 
 	@$(MAKE) --no-print-directory install 
-	@$(MAKE) --no-print-directory static	
+	@$(MAKE) --no-print-directory static
 
 explicit-ip:
 	@$(MAKE) --no-print-directory install
@@ -24,6 +25,12 @@ explicit-ip:
 
 no-static:
 	@$(MAKE) --no-print-directory install
+
+cellular:
+# install sierra wireless USB driver. This is not strictly neccesary but may be required if all the interfaces are needed (DM, NMEA, AT), should show up as /dev/ttuUSB0, 1, 2
+	@if [ -d "$(SW_LOCATION)" ] ; then echo "" && echo "Installing Sierra Wireless Driver..." && echo "" && cd $(SW_LOCATION) && make && make install ; fi		
+# run script which sets up nmcli "attcell" connection. Remove --defaults if you want it to be interactive, otherwise it'll use the default ATT APN: Broadband
+	@$(SUDO) ./ensure-cellular.sh --defaults
 
 disable:
 	@( for c in stop disable ; do $(SUDO) systemctl $${c} $(SERVICES) ; done ; true )
