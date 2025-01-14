@@ -4,10 +4,10 @@
 
 function ApnChange
 {
-    echo "Removing existing network manager profile for attcell..."
-    nmcli con delete 'attcell'
-    echo "Adding network manager profile for attcell..."
-    nmcli connection add type gsm ifname cdc-wdm0 con-name "attcell" apn "$1" connection.autoconnect yes	
+    echo "Removing existing network manager profile for Cellular..."
+    nmcli con delete 'Cellular'
+    echo "Adding network manager profile for Cellular..."
+    nmcli connection add type gsm ifname cdc-wdm0 con-name "Cellular" apn "$1" connection.autoconnect yes	
 }
 
 while [[ $# -gt 0 ]]; do 
@@ -33,7 +33,7 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         -c)
-            nmcli con show attcell | grep gsm.apn | cut -d ":" -f2 | xargs
+            nmcli con show Cellular | grep gsm.apn | cut -d ":" -f2 | xargs
             exit 0
             ;;
         -v)
