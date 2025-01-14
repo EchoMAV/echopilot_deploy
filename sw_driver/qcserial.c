@@ -17,7 +17,7 @@
 
 #include "usb-wwan.h"
 
-bool debug = false;
+static bool debug = false;
 
 module_param(debug, bool, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 MODULE_PARM_DESC(debug,"enable/disable driver logging");
@@ -36,6 +36,8 @@ enum qcserial_layouts {
 	QCSERIAL_SWI_9X50 = 4, /* Sierra Wireless 9x50 USB-IF */
 	QCSERIAL_SWI_SDX55 = 5, /* Sierra Wireless SDX55 */
 	QCSERIAL_SWI_SDX55_RMNET = 6, /* Sierra Wireless SDX55 */
+	QCSERIAL_SDX35 = 7, /* SDX35 */
+	QCSERIAL_EM8695 = 8, /* EM8695 */
 };
 
 #define DEVICE_G1K(v, p) \
@@ -50,6 +52,10 @@ enum qcserial_layouts {
 	USB_DEVICE(v, p), .driver_info = QCSERIAL_SWI_SDX55_RMNET
 #define DEVICE_HWI(v, p) \
 	USB_DEVICE(v, p), .driver_info = QCSERIAL_HWI
+#define DEVICE_SDX35(v, p) \
+	USB_DEVICE(v, p), .driver_info = QCSERIAL_SDX35
+#define DEVICE_EM8695(v, p) \
+	USB_DEVICE(v, p), .driver_info = QCSERIAL_EM8695
 
 static const struct usb_device_id id_table_combine[] = {
 	/* Gobi 1000 devices */
@@ -190,6 +196,8 @@ static const struct usb_device_id id_table_combine[] = {
 	{DEVICE_SWI_SDX55(0x1199, 0x90e1)},	/* Sierra Wireless EM929x */
 	{DEVICE_SWI(0x1199, 0x90e2)},	/* Sierra Wireless EM929x QDL */
 	{DEVICE_SWI_SDX55(0x1199, 0x90e3)},	/* Sierra Wireless EM929x */
+	{DEVICE_SWI(0x1199, 0xc080)},	/* Sierra Wireless EM7590 ramdump */
+	{DEVICE_SWI(0x1199, 0xc081)},	/* Sierra Wireless EM7590 */
 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
@@ -206,6 +214,10 @@ static const struct usb_device_id id_table_combine[] = {
 
 	/* Huawei devices */
 	{DEVICE_HWI(0x03f0, 0x581d)},	/* HP lt4112 LTE/HSPA+ Gobi 4G Modem (Huawei me906e) */
+
+	{DEVICE_SDX35(0x05c6, 0x90b8)},	/* SDX35 */
+	{DEVICE_SWI(0x1199, 0x90e4)},   /* EM8695 QDL */
+	{DEVICE_EM8695(0x1199, 0x90e5)},/* EM8695 */
 
 	{ }				/* Terminating entry */
 };
@@ -340,6 +352,7 @@ static const struct usb_device_id id_table[] = {
 	{DEVICE_SWI_SDX55_RMNET(0x1199, 0x90d9)},	/* Sierra Wireless EM9190 */
 	{DEVICE_SWI_SDX55(0x1199, 0x90e1)},	/* Sierra Wireless EM929x */
 	{DEVICE_SWI_SDX55(0x1199, 0x90e3)},	/* Sierra Wireless EM929x */
+	{DEVICE_SWI(0x1199, 0xc081)},	/* Sierra Wireless EM7565 */
 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
@@ -357,6 +370,9 @@ static const struct usb_device_id id_table[] = {
 	/* Huawei devices */
 	{DEVICE_HWI(0x03f0, 0x581d)},	/* HP lt4112 LTE/HSPA+ Gobi 4G Modem (Huawei me906e) */
 
+	{DEVICE_SDX35(0x05c6, 0x90b8)},	/* SDX35 */
+	{DEVICE_EM8695(0x1199, 0x90e5)},/* EM8695 */
+
 	{ }				/* Terminating entry */
 };
 MODULE_DEVICE_TABLE(usb, id_table);
@@ -372,6 +388,8 @@ static const struct usb_device_id id_table_1[] = {
 	{DEVICE_SWI(0x1199, 0x90d8)},	/* Sierra Wireless EM9190 QDL */
 	{DEVICE_SWI(0x1199, 0x90e0)},	/* Sierra Wireless EM929x QDL */
 	{DEVICE_SWI(0x1199, 0x90e2)},	/* Sierra Wireless EM929x QDL */
+	{DEVICE_SWI(0x1199, 0xC080)},	/* Sierra Wireless EM7590 ramdump */	
+	{DEVICE_SWI(0x1199, 0x90e4)},	/* Sierra Wireless EM8695 QDL */
 	{ }				/* Terminating entry */
 };
 MODULE_DEVICE_TABLE(usb, id_table_1);
@@ -532,6 +550,7 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 		 * 0: DM/DIAG (use libqcdm from ModemManager for communication)
 		 * 2: NMEA
 		 * 3: AT-capable modem port
+		 * 5: RAW data port
 		 * 8: QMI/net
 		 */
 		switch (ifnum) {
@@ -544,6 +563,10 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 			break;
 		case 3:
 			dev_dbg(dev, "Modem port found\n");
+			sendsetup = true;
+			break;
+		case 5:
+			dev_dbg(dev, "RAW DATA port found\n");
 			sendsetup = true;
 			break;
 		default:
@@ -647,6 +670,40 @@ static int qcprobe(struct usb_serial *serial, const struct usb_device_id *id)
 			break;
 		case 4:
 			dev_dbg(dev, "DM/DIAG interface found\n");
+			break;
+		default:
+			/* don't claim any unsupported interface */
+			altsetting = -1;
+			break;
+		}
+		break;
+	case QCSERIAL_SDX35:
+		/*
+		 */
+		switch (ifnum) {
+		case 0:
+			dev_dbg(dev, "DM/DIAG interface found\n");
+			break;
+		case 1:
+			dev_dbg(dev, "Modem port found\n");
+			sendsetup = true;
+			break;
+		default:
+			/* don't claim any unsupported interface */
+			altsetting = -1;
+			break;
+		}
+		break;
+	case QCSERIAL_EM8695:
+		/*
+		 */
+		switch (ifnum) {
+		case 0:
+			dev_dbg(dev, "DM/DIAG interface found\n");
+			break;
+		case 3:
+			dev_dbg(dev, "Modem port found\n");
+			sendsetup = true;
 			break;
 		default:
 			/* don't claim any unsupported interface */
@@ -780,4 +837,4 @@ module_usb_serial_driver(serial_drivers, id_table_combine);
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL v2");
-MODULE_VERSION("1.11.2302.2");
+MODULE_VERSION("1.14.2411.1");

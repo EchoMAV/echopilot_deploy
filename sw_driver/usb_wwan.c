@@ -34,10 +34,38 @@
 #include <linux/version.h>
 #include "usb-wwan.h"
 
-bool debug = false;
+static bool debug = false;
 
 module_param(debug, bool, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 MODULE_PARM_DESC(debug,"enable/disable driver logging");
+
+#ifndef DEBUG
+
+#ifdef dev_dbg 
+#undef dev_dbg
+#endif
+
+#define dev_dbg(dev, fmt, ...) do {\
+	if (debug) {\
+		if (dev) {\
+			printk(KERN_INFO "[D]%s %s:"pr_fmt(fmt), dev_driver_string(dev), dev_name(dev), ##__VA_ARGS__);\
+		}\
+	}\
+} while (0)
+
+#ifdef dev_err
+#undef dev_err
+#endif
+
+#define dev_err(dev, fmt, ...) do { \
+	if (debug) { \
+		if (dev) {	\
+			printk(KERN_ERR "[E]%s %s:"pr_fmt(fmt), dev_driver_string(dev), dev_name(dev), ##__VA_ARGS__); 	\
+		}\
+	}\
+} while (0)
+
+#endif /* DEBUG */
 
 /*
  * Generate DTR/RTS signals on the port using the SET_CONTROL_LINE_STATE request
@@ -778,4 +806,4 @@ EXPORT_SYMBOL(usb_wwan_resume);
 MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL v2");
-MODULE_VERSION("1.2.2302.2");
+MODULE_VERSION("1.3.2312.1");

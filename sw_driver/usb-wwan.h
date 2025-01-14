@@ -76,34 +76,4 @@ struct usb_wwan_port_private {
 	unsigned long tx_start_time[N_OUT_URB];
 };
 
-#ifndef DEBUG
-
-extern bool debug;
-
-#ifdef dev_dbg 
-#undef dev_dbg
-#endif
-
-#define dev_dbg(dev, fmt, ...) do {\
-	if (debug) {\
-		if (dev) {\
-			printk(KERN_INFO "[D]%s %s:"pr_fmt(fmt), dev_driver_string(dev), dev_name(dev), ##__VA_ARGS__);\
-		}\
-	}\
-} while (0)
-
-#ifdef dev_err
-#undef dev_err
-#endif
-
-#define dev_err(dev, fmt, ...) do { \
-	if (debug) { \
-		if (dev) {	\
-			printk(KERN_ERR "[E]%s %s:"pr_fmt(fmt), dev_driver_string(dev), dev_name(dev), ##__VA_ARGS__); 	\
-		}\
-	}\
-} while (0)
-
-#endif /* DEBUG */
-
 #endif /* __LINUX_USB_USB_WWAN */
