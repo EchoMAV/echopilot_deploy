@@ -11,7 +11,6 @@ SERVICES=mavlink-router.service temperature.service
 DRY_RUN=false
 LOCAL=/usr/local
 LOCAL_SCRIPTS=temperature.sh cockpitScript.sh
-SW_LOCATION=sw_driver
 apn := teal
 
 .PHONY = enable install see uninstall static default no-static cellular
@@ -28,10 +27,11 @@ no-static:
 	@$(MAKE) --no-print-directory install
 
 cellular:
+	@rm -rf /tmp/cellular_drivers && cd /tmp/ && echo "Downloading Cellular Driver Source Code..." && git clone https://github.com/EchoMAV/cellular_drivers
 # install sierra wireless USB driver. This is not strictly neccesary but may be required if all the interfaces are needed (DM, NMEA, AT), should show up as /dev/ttuUSB0, 1, 2
-	@if [ -d "$(SW_LOCATION)" ] ; then echo "" && echo "Installing Sierra Wireless Driver..." && echo "" && cd $(SW_LOCATION) && make && make install ; fi		
+	@echo "Building Sierra Wireless Driver..." && cd /tmp/cellular_drivers/sw_driver && make && echo "Installing Sierra Wireless Driver..." && make install
 # run script which sets up nmcli "Cellular" connection with given apn (defaults to teal if not supplied)
-	@$(SUDO) ./ensure-cellular.sh --apn $(apn)
+	@echo "Configuring Cellular Network Interface..." && cd /tmp/cellular_drivers/scripts && $(SUDO) ./ensure-cellular.sh --apn $(apn)
 
 disable:
 	@( for c in stop disable ; do $(SUDO) systemctl $${c} $(SERVICES) ; done ; true )
