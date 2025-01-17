@@ -28,8 +28,8 @@ no-static:
 
 cellular:
 	@rm -rf /tmp/cellular_drivers && cd /tmp/ && echo "Downloading Cellular Driver Source Code..." && git clone https://github.com/EchoMAV/cellular_drivers
-# install sierra wireless USB driver. This is not strictly neccesary but may be required if all the interfaces are needed (DM, NMEA, AT), should show up as /dev/ttuUSB0, 1, 2
-	@echo "Building Sierra Wireless Driver..." && cd /tmp/cellular_drivers/sw_driver && make && echo "Installing Sierra Wireless Driver..." && make install
+# run script which builds and installs the Sierra Wireless drivers
+	@cd /tmp/cellular_drivers/scripts && $(SUDO) ./install-sw_driver.sh
 # run script which sets up nmcli "Cellular" connection with given apn (defaults to teal if not supplied)
 	@echo "Configuring Cellular Network Interface..." && cd /tmp/cellular_drivers/scripts && $(SUDO) ./ensure-cellular.sh --apn $(apn)
 
