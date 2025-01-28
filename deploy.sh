@@ -151,7 +151,10 @@ install() {
   for s in $LOCAL_SCRIPTS; do sudo install -Dm755 ${s} $LOCAL/echopilot/${s}; done
 
   # stop any running services we care about
-  for c in stop disable; do sudo systemctl $c ${SERVICES[@]}; done
+  for s in ${SERVICES[@]}; do
+    sudo systemctl stop ${s} || true
+    sudo systemctl disable ${s} || true
+  done
 
   # install and enable services
   for s in ${SERVICES[@]}; do sudo install -Dm644 ${s%.*}.service $LIBSYSTEMD/${s%.*}.service; done
@@ -161,8 +164,8 @@ install() {
   done
 
   # set up the system permissions, stop/disable nvgetty etc
-  sudo systemctl stop nvgetty
-  sudo systemctl disable nvgetty
+  sudo systemctl stop nvgetty || true
+  sudo systemctl disable nvgetty || true
   sudo usermod -aG dialout ${USER}
   sudo usermod -aG tty ${USER}
 }
