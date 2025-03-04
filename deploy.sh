@@ -148,7 +148,7 @@ install() {
   sudo cp -rf ui/base1/* /usr/share/cockpit/base1/
   [ -d $LOCAL/echopilot ] || sudo mkdir $LOCAL/echopilot
   sudo install -Dm755 version.txt $LOCAL/echopilot/.
-  for s in $LOCAL_SCRIPTS; do sudo install -Dm755 ${s} $LOCAL/echopilot/${s}; done
+  for s in ${LOCAL_SCRIPTS[@]}; do sudo install -Dm755 ${s} $LOCAL/echopilot/${s}; done
 
   # stop any running services we care about
   for s in ${SERVICES[@]}; do
