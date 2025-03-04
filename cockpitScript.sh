@@ -25,7 +25,7 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         -s)
-            ls /dev/ | grep ttyTH  | sed -e "s/.*/\/dev\/&/"
+            ls /dev/ | grep ttyTH | head -c -1 | sed -e "s/.*/\/dev\/&/"
             exit 0
             ;;
         -i)
