@@ -135,6 +135,10 @@ install() {
   cd "$SCRIPT_DIR"
   sudo mkdir -p $SYSCFG
   sudo cp main.conf $SYSCFG/.
+  # change the default serial port on R35
+  if grep -q "R35" /etc/nv_tegra_release ; then
+    sudo sed -i 's:Device = /dev/ttyTHS1:Device = /dev/ttyTHS0:g' $SYSCFG/main.conf
+  fi
 
   # install cockpit
   sudo ./ensure-cockpit.sh
